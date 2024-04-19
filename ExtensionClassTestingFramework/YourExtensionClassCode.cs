@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Transactions;
-
 using Mongoose.Core.Common;
 using Mongoose.Core.DataAccess;
 using Mongoose.IDO;
@@ -12,7 +10,7 @@ using Mongoose.IDO.Protocol;
 
 namespace ExtensionClassTestingFramework
 {
-    // [IDOExtensionClass( "YourExtensionClassCode" )]
+    [IDOExtensionClass( "YourExtensionClassCode" )]
     public partial class YourExtensionClassCode : IDOExtensionClass
     {
         [IDOMethod(MethodFlags.CustomLoad, "Infobar")]
@@ -23,14 +21,18 @@ namespace ExtensionClassTestingFramework
         public static DataTable Process_MyMethod(IIDOCommands context, string Param1, string Param2)
         {
             DataTable dtResults = new DataTable();
-            LoadCollectionRequestData req = new LoadCollectionRequestData();
-            LoadCollectionResponseData rsp = new LoadCollectionResponseData();
+            // Add columns and match the expected data type
+            dtResults.Columns.Add("Item", typeof(string));       
+            dtResults.Columns.Add("Description", typeof(string));
 
+            LoadCollectionRequestData req = new LoadCollectionRequestData();
             req.IDOName = "SLItems";
             req.Filter = "PMTCode = 'P'";
             req.RecordCap = 1000;
+            // Add the property list
+            req.PropertyList = new PropertyList("Item, Description");
 
-            rsp = context.LoadCollection(req);
+            LoadCollectionResponseData rsp = context.LoadCollection(req);
             rsp.Fill(dtResults);
 
             return dtResults;
